@@ -1,0 +1,5 @@
+---
+- src: https://github.com/EAS-Dave/Molecule_Gateway.git
+  scm: git
+  version: main
+  name: gateway

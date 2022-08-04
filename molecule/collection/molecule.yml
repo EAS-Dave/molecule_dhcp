@@ -1,0 +1,58 @@
+---
+dependency:
+  name: galaxy
+  options:
+    ignore-certs: True
+    ignore-errors: True
+    role-file: requirements.yml
+driver:
+  name: vmware
+  vcenter_hostname: ${VCENTER_HOSTNAME}
+  vcenter_username: ${VCENTER_USERNAME}
+  vcenter_password: ${VCENTER_PASSWORD}
+  validate_certs: false
+  datacenter: Cardiff
+  esxi_hostname: ${ESXI_HOSTNAME}
+  folder: /Ansible/molecule
+  vm_username: root
+  vm_password: Renegade187!
+  instance_os_type: linux 
+platforms:
+  - name: david-dhcp
+    template: RHEL79-Thin
+    hardware:
+      num_cpus: 2 # is cpu number to be configured to an instance
+      memory_mb: 2048 # is memory size(MB) to be configured to an instance
+    networks:
+      - name: VM Network
+        type: dhcp
+        start_connected: true
+        connected: true
+      - name: dave
+        type: static
+        ip: 100.64.0.2 # is ip address to be configured to an instance
+        netmask: 255.255.255.0 # is netmask to be configured to an instance
+        gateway: 100.64.0.1
+    groups: 
+      - dhcp
+  - name: david-gateway
+    template: RHEL79-Thin
+    hardware:
+      num_cpus: 2 # is cpu number to be configured to an instance
+      memory_mb: 2048 # is memory size(MB) to be configured to an instance
+    networks:
+      - name: VM Network
+        type: dhcp
+        start_connected: true
+        connected: true
+      - name: dave
+        type: static
+        ip: 100.64.0.1 # is ip address to be configured to an instance
+        netmask: 255.255.255.0 # is netmask to be configured to an instance
+        #gateway: 100.64.0.1
+    groups: 
+      - gateway
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

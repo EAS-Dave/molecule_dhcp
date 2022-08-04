@@ -1,0 +1,73 @@
+---
+# tasks file for dhcp
+- name: refresh subscription manager
+  command: subscription-manager refresh
+
+- name: Install the latest version of dhcp-server
+  become: true
+  ansible.builtin.yum:
+    name: dhcp
+    update_cache: yes
+    state: latest
+
+- name: configure the subnet and netmask
+  ansible.builtin.blockinfile:
+    path: /etc/dhcp/dhcpd.conf
+    block: |
+      option domain-name "dave.local";
+      default-lease-time	86400;
+      max-lease-time  172800;
+      ddns-update-style none;
+      authoritative;
+      subnet 100.64.0.0 netmask 255.255.255.0 {
+        range 100.64.0.10 100.64.0.50;
+        option subnet-mask 255.255.255.0;
+        option routers 100.64.0.1;
+        option domain-name "dave.local";
+        option domain-search "dave.local";
+        option domain-name-servers 8.8.8.8;
+      }
+      host gateway-node {
+        hardware ethernet 00:50:56:b2:e8:01;
+        fixed-address 100.64.0.1;
+      }
+      host DNS-node { 
+        hardware ethernet 00:50:56:b2:23:bd;
+        fixed-address 10.0.0.3;
+      }
+- name: start dhcp service
+  ansible.builtin.systemd:
+    name: dhcpd
+    state: started
+
+- name: add dhcp service to firewalld
+  firewalld:
+    permanent: yes
+    service: dhcp
+    state: enabled
+
+- name: reload firewalld service
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Restart network
+  service:
+    name: NetworkManager
+    state: restarted
+
+# - name: remove nic with mac 00:50:56:11:22:33 from vm01.domain.fake
+#   community.vmware.vmware_guest_network:
+#     hostname: "{{ vcenter_hostname }}"
+#     username: "{{ vcenter_username }}"
+#     password: "{{ vcenter_password }}"
+#     datacenter: "{{ datacenter_name }}"
+#     mac_address: 00:50:56:11:22:33
+#     name: vm01.domain.fake
+#     state: absent
+
+
+# host DNS-node {
+#         hardware ethernet 00:50:56:b2:23:bd;
+#         fixed-address 100.64.0.3;
+# }

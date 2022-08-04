@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: dhcp
+  tasks:
+    - name: "Include dhcp"
+      include_role:
+        name: "dhcp"

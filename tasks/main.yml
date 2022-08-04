@@ -1,0 +1,13 @@
+---
+
+- name: Include the imported Gateway role
+  include_role:
+    name: gateway
+
+- debug:
+    #msg: "{{ hostvars[groups['gateway'][0]].gateway_status }}"
+    msg: "{{ hostvars['david-dhcp'] }}"
+# - name:
+#   ansible.builtin.include_tasks: dhcp.yml
+#   when: {{ hostvars[david-gateway].gateway_status }} == SUCCESS
+
